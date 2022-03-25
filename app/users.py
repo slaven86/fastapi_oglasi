@@ -6,6 +6,7 @@ import validators
 from passlib.hash import pbkdf2_sha256
 from typing import List
 from .token import get_current_user
+from datetime import datetime
 
 
 
@@ -43,6 +44,9 @@ def add_user(user: UserCreate):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
                             detail="Last name must be only letters!")
 
+    dob = datetime.strptime(str(user.date_birth), "%Y-%m-%d")
+    date_birth = str(dob)[:10]
+
 
 
     if not validators.email(user.email):
@@ -69,6 +73,7 @@ def add_user(user: UserCreate):
         email=user.email,
         username=user.username,
         password=hashed_pass,
+        date_birth=date_birth,
         role_id=1)
 
     db.add(new_user)
@@ -86,7 +91,7 @@ def get_all_users():
 
 
 @router.get('/users/{id}', status_code=status.HTTP_200_OK, response_model=UserOut)
-def get_single_recipe(id: int, current_user: UserOut = Depends(get_current_user)):
+def get_single_user(id: int, current_user: UserOut = Depends(get_current_user)):
     single_user = db.query(models.User).filter(models.User.id == id, models.User.id == current_user.id).first()
 
 
@@ -104,13 +109,18 @@ def update_user(id:int, user: UserCreate, current_user: UserOut = Depends(get_cu
     if not user_update:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only owner can update this page!")
 
+    dob = datetime.strptime(str(user.date_birth), "%Y-%m-%d")
+    date_birth = str(dob)[:10]
+
     hashed_pass = pbkdf2_sha256.hash(user.password)
+
     user_update.first_name = user.first_name
     user_update.last_name = user.last_name
     user_update.genre = user.genre
     user_update.email = user.email
     user_update.username = user.username
     user_update.password = hashed_pass
+    user_update.date_birth = date_birth
     db.commit()
     return {"msg": "User is updated!"}
 
@@ -125,7 +135,7 @@ def delete_user(id:int, current_user: UserOut = Depends(get_current_user)):
 
     db.delete(user_delete)
     db.commit()
-    return {"msg": "Recipe has been deleted!"}
+    return {"msg": "User has been deleted!"}
 
 
 
