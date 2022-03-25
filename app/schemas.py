@@ -64,7 +64,7 @@ class CarList(BaseModel):
         orm_mode = True
 
 
-class RateCreate(BaseModel):
+class RateCarCreate(BaseModel):
     car_id: int
     rate: float
 
@@ -73,7 +73,7 @@ class RateCreate(BaseModel):
 
 
 
-class Rate(BaseModel):
+class RateCar(BaseModel):
     rate: float
 
     class Config:

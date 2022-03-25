@@ -20,7 +20,7 @@ class User(Base):
 
     my_cars = relationship("Car", back_populates="owner")
     role = relationship("Role", back_populates="all_users")
-    cars = relationship("Car", secondary="rating", back_populates="owners")
+    cars = relationship("Car", secondary="rating_car", back_populates="owners")
 
 
 
@@ -39,15 +39,17 @@ class Car(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
 
     owner = relationship("User", back_populates="my_cars")
-    owners = relationship("User", secondary="rating", back_populates="cars")
+    owners = relationship("User", secondary="rating_car", back_populates="cars")
 
 
-class Rating(Base):
-    __tablename__ = "rating"
+class RatingCar(Base):
+    __tablename__ = "rating_car"
 
     car_id = Column(Integer, ForeignKey('cars.id', ondelete="CASCADE"), primary_key=True)
     owner_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
     rate = Column(Float)
+
+
 
 
 class Role(Base):
