@@ -116,6 +116,7 @@ def add_car_rate(rating: RateCarCreate, current_user: UserOut = Depends(get_curr
 
 
 
+
 @router.get('/cars/{id}/rate', status_code=status.HTTP_200_OK,response_model=RateCar)
 def get_avg_car_rate(id: int, current_user: UserOut = Depends(get_current_user)):
     single_car = db.query(models.Car).filter(models.Car.id == id,
@@ -129,8 +130,13 @@ def get_avg_car_rate(id: int, current_user: UserOut = Depends(get_current_user))
 
 
 
-@router.get('/cars/rate/avg', status_code=status.HTTP_200_OK, response_model=List[RateCarCreate])
+@router.get('/cars/rate/avg', status_code=status.HTTP_200_OK, response_model=RateCarCreate)
 def get_all_avg_rate(current_user: UserOut = Depends(get_current_user)):
 
     avg = db.query(models.RatingCar.car_id, func.avg(models.RatingCar.rate)).group_by(models.RatingCar.car_id).order_by(func.avg(models.RatingCar.rate)).all()
-    print(avg)
+    for m in avg:
+        car_id = m[0]
+        rate = m[1]
+        return RateCarCreate(car_id=car_id, rate=rate)
+
+
