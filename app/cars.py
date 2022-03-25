@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
-from .schemas import CarCreate, UserOut, CarList, Rate, RateCreate
+from .schemas import CarCreate, UserOut, CarList, RateCar, RateCarCreate
 from .token import get_current_user
 from . import models
 from .database import SessionLocal
@@ -32,6 +32,29 @@ def add_car(car: CarCreate, current_user: UserOut = Depends(get_current_user)):
 def get_all_cars():
     all_cars = db.query(models.Car).all()
     return all_cars
+
+
+#SORT BY BRAND
+@router.get('/cars/brand', status_code=status.HTTP_200_OK, response_model=List[CarList])
+def get_all_cars():
+    all_cars = db.query(models.Car).order_by(models.Car.brand).all()
+    return all_cars
+
+
+#SORT BY MODEL
+@router.get('/cars/model', status_code=status.HTTP_200_OK, response_model=List[CarList])
+def get_all_cars():
+    all_cars = db.query(models.Car).order_by(models.Car.model).all()
+    return all_cars
+
+
+
+#SORT BY YEAR
+@router.get('/cars/year', status_code=status.HTTP_200_OK, response_model=List[CarList])
+def get_all_cars():
+    all_cars = db.query(models.Car).order_by(models.Car.year).all()
+    return all_cars
+
 
 
 
@@ -78,10 +101,10 @@ def delete_car(id:int, current_user: UserOut = Depends(get_current_user)):
 
 
 @router.post('/cars/rate', status_code=status.HTTP_201_CREATED)
-def add_car_rate(rating: RateCreate, current_user: UserOut = Depends(get_current_user)):
+def add_car_rate(rating: RateCarCreate, current_user: UserOut = Depends(get_current_user)):
     if rating.rate not in range(1, 6):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Rate must be 1-5, try again")
-    new_rate = models.Rating(car_id=rating.car_id, rate=rating.rate, owner_id=current_user.id)
+    new_rate = models.RatingCar(car_id=rating.car_id, rate=rating.rate, owner_id=current_user.id)
     query = db.query(models.Car).filter(models.Car.owner_id == current_user.id,
                                            models.Car.id == rating.car_id).first()
     if query:
@@ -93,17 +116,21 @@ def add_car_rate(rating: RateCreate, current_user: UserOut = Depends(get_current
 
 
 
-@router.get('/cars/{id}/rate', status_code=status.HTTP_200_OK,response_model=Rate)
+@router.get('/cars/{id}/rate', status_code=status.HTTP_200_OK,response_model=RateCar)
 def get_avg_car_rate(id: int, current_user: UserOut = Depends(get_current_user)):
     single_car = db.query(models.Car).filter(models.Car.id == id,
                                                    models.Car.owner_id == current_user.id).first()
 
     if single_car:
-        avg = db.query(func.avg(models.Rating.rate)).filter(models.Rating.car_id == id).first()
-        return Rate(rate=avg[0])
+        avg = db.query(func.avg(models.RatingCar.rate)).filter(models.Rating.car_id == id).first()
+        return RateCar(rate=avg[0])
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Car does not exist!")
 
 
 
+@router.get('/cars/rate/avg', status_code=status.HTTP_200_OK, response_model=List[RateCarCreate])
+def get_all_avg_rate(current_user: UserOut = Depends(get_current_user)):
 
+    avg = db.query(models.RatingCar.car_id, func.avg(models.RatingCar.rate)).group_by(models.RatingCar.car_id).order_by(func.avg(models.RatingCar.rate)).all()
+    print(avg)
