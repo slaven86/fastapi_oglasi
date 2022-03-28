@@ -9,6 +9,15 @@ class RoleCreate(BaseModel):
         orm_mode = True
 
 
+class GenreCreate(BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
+
+
 class User(BaseModel):
     username: str
 
@@ -20,7 +29,7 @@ class User(BaseModel):
 class UserCreate(BaseModel):
     first_name: str
     last_name: str
-    genre: str
+    genre_id: int
     date_birth: Optional[date]
     email: str
     username: str

@@ -10,16 +10,17 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     first_name = Column(String(50))
     last_name = Column(String(50))
-    genre = Column(String(10))
     date_birth = Column(Date)
     email = Column(String(100))
     created_at = Column(DateTime, default=datetime.utcnow)
     username = Column(String(50))
     password = Column(String(200))
+    genre_id = Column(Integer, ForeignKey("genres.id", ondelete="CASCADE"))
     role_id = Column(Integer, ForeignKey("roles.id", ondelete="CASCADE"))
 
     my_cars = relationship("Car", back_populates="owner")
     role = relationship("Role", back_populates="all_users")
+    genre = relationship("Genre", back_populates="all_users")
     cars = relationship("Car", secondary="rating_car", back_populates="owners")
 
 
@@ -49,6 +50,15 @@ class RatingCar(Base):
     owner_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
     rate = Column(Float)
 
+
+
+
+class Genre(Base):
+    __tablename__ = "genres"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(10), nullable=False)
+
+    all_users = relationship("User", back_populates="genre")
 
 
 

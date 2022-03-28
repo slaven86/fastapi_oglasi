@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from .database import SessionLocal
-from .schemas import UserCreate, UserOut, RoleCreate, CarList
+from .schemas import UserCreate, UserOut, RoleCreate, CarList, GenreCreate
 from . import models
 import validators
 from passlib.hash import pbkdf2_sha256
@@ -25,6 +25,15 @@ def add_role(role: RoleCreate):
 
     return {"msg": "New role created!"}
 
+
+@router.post('/genre', status_code=status.HTTP_201_CREATED)
+def add_genre(genre: GenreCreate):
+    new_genre = models.Genre(name=genre.name)
+    db.add(new_genre)
+    db.commit()
+    db.refresh(new_genre)
+
+    return {"msg": "New genre created!"}
 
 
 
@@ -69,7 +78,7 @@ def add_user(user: UserCreate):
     new_user = models.User(
         first_name=user.first_name,
         last_name=user.last_name,
-        genre=user.genre,
+        genre_id=user.genre_id,
         email=user.email,
         username=user.username,
         password=hashed_pass,
@@ -116,7 +125,7 @@ def update_user(id:int, user: UserCreate, current_user: UserOut = Depends(get_cu
 
     user_update.first_name = user.first_name
     user_update.last_name = user.last_name
-    user_update.genre = user.genre
+    user_update.genre_id = user.genre_id
     user_update.email = user.email
     user_update.username = user.username
     user_update.password = hashed_pass
