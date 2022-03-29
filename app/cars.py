@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
-from .schemas import CarCreate, UserOut, CarList, RateCar, RateCarCreate
+from .schemas import CarCreate, UserOut, CarList, RateCarCreate
 from .token import get_current_user
 from . import models
 from .database import SessionLocal

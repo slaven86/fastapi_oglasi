@@ -76,7 +76,7 @@ def admin_add_user(user: UserCreate, current_user: UserOut = Depends(get_current
     return {"msg": "New admin created!"}
 
 
-# DELETE ANYONE USER
+# DELETE ANY USER
 @router.delete('/admin/users/{id}', status_code=status.HTTP_200_OK)
 def admin_delete_user(id:int, current_user: UserOut = Depends(get_current_user)):
     logged_in_user = db.query(models.User).filter(models.User.id == current_user.id).first()
