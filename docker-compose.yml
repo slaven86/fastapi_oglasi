@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+
+  db:
+    container_name: postgresql_db
+    image: postgres
+    restart: always
+
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=oglasi
+      - POSTGRES_HOST=localhost
+
+
+  app:
+    container_name: app
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8100:8100
+    depends_on:
+      - db
+    tty: true
