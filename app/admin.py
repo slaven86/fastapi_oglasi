@@ -16,7 +16,7 @@ db = SessionLocal()
 
 
 #ADD ADMIN USER
-@router.post('/admin', status_code=status.HTTP_201_CREATED)
+@router.post('/admin/users', status_code=status.HTTP_201_CREATED)
 def admin_add_user(user: UserCreate, current_user: UserOut = Depends(get_current_user)):
 
     logged_in_user = db.query(models.User).filter(models.User.id == current_user.id).first()
